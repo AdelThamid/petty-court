@@ -1,0 +1,238 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Petty Court palette */
+  --color-ink: #111110;
+  --color-ink-2: #1a1917;
+  --color-cream: #f4ebdd;
+  --color-gold: #c9a66b;
+  --color-burgundy: #882f3b;
+  --color-burgundy-hover: #9c3845;
+  --color-parchment: #efe4cf;
+  --color-parchment-ink: #2a2420;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+  color-scheme: dark;
+  --background: #111110;
+  --foreground: #f4ebdd;
+  --card: #1a1917;
+  --card-foreground: #f4ebdd;
+  --popover: #1a1917;
+  --popover-foreground: #f4ebdd;
+  --primary: #882f3b;
+  --primary-foreground: #f4ebdd;
+  --secondary: #24221f;
+  --secondary-foreground: #f4ebdd;
+  --muted: #24221f;
+  --muted-foreground: #b9ae9d;
+  --accent: #2a2724;
+  --accent-foreground: #f4ebdd;
+  --destructive: #d0606e;
+  --border: rgb(201 166 107 / 0.22);
+  --input: rgb(244 235 221 / 0.18);
+  --ring: #c9a66b;
+  --radius: 0.375rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  ::selection {
+    background: rgb(201 166 107 / 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+}
+
+/* Small uppercase procedural label */
+@utility label-proc {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Theatrical reveal for testimony */
+@keyframes testimony-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  animation: testimony-in 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Verdict stamp slam */
+@keyframes stamp-slam {
+  0% {
+    opacity: 0;
+    transform: rotate(calc(var(--stamp-rot, -9deg) - 5deg)) scale(2.4);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(var(--stamp-rot, -9deg)) scale(0.94);
+  }
+  80% {
+    transform: rotate(var(--stamp-rot, -9deg)) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(var(--stamp-rot, -9deg)) scale(1);
+  }
+}
+.stamp {
+  /* Override per use with --stamp-rot (set via a utility class). */
+  transform: rotate(var(--stamp-rot, -9deg));
+  animation: stamp-slam 520ms cubic-bezier(0.3, 0.6, 0.3, 1) 180ms both;
+}
+
+/* OBJECTION! shake */
+@keyframes objection-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) rotate(-1deg); }
+  40% { transform: translateX(4px) rotate(1deg); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+.objection-shake {
+  animation: objection-shake 380ms ease-in-out;
+}
+
+@keyframes gavel-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.gavel-pulse {
+  animation: gavel-pulse 1.1s ease-in-out infinite;
+}
+
+/* Faint parchment texture without images */
+.parchment {
+  background-color: var(--color-parchment);
+  background-image:
+    radial-gradient(circle at 20% 10%, rgb(255 255 255 / 0.45), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgb(160 120 60 / 0.12), transparent 50%);
+  color: var(--color-parchment-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Print / Save PDF: only the latest verdict document ---------- */
+@media print {
+  @page {
+    margin: 14mm 12mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #1a1714 !important;
+  }
+  .no-print,
+  nextjs-portal,
+  [data-slot="dialog-overlay"],
+  [data-slot="dialog-content"] {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .reveal,
+  .stamp {
+    animation: none !important;
+  }
+  .verdict-doc {
+    max-width: none !important;
+    box-shadow: none !important;
+    background: #fbf7ef !important;
+    background-image: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .verdict-keep {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .verdict-doc h2,
+  .verdict-doc h3 {
+    break-after: avoid;
+  }
+  /* Tighter rhythm on paper so a typical verdict fits one page */
+  .verdict-doc {
+    padding: 6px !important;
+  }
+  .verdict-inner {
+    padding: 28px 40px !important;
+  }
+  .verdict-stamp-wrap {
+    margin: 22px 0 !important;
+  }
+  .verdict-doc dl,
+  .verdict-doc section,
+  .verdict-doc footer {
+    padding-top: 18px !important;
+    margin-top: 18px !important;
+  }
+  .verdict-doc dl {
+    gap: 14px !important;
+  }
+  .verdict-punchline {
+    margin-top: 22px !important;
+    font-size: 22px !important;
+  }
+}
