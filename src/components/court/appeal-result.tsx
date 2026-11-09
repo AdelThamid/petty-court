@@ -50,14 +50,9 @@ export const AppealResult = forwardRef<
           <span className="grid size-9 place-items-center rounded-full border border-burgundy bg-burgundy/20 text-cream">
             <Hand className="size-4" aria-hidden />
           </span>
-          <div>
-            <h3 id="appeal-heading" ref={ref} tabIndex={-1} className="label-proc text-gold outline-none focus-visible:outline-2">
-              Objection
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {appeal.mode === "sample" ? "Sample demo — saved appeal" : "Live AI ruling"}
-            </p>
-          </div>
+          <h3 id="appeal-heading" ref={ref} tabIndex={-1} className="label-proc text-gold outline-none focus-visible:outline-2">
+            Objection
+          </h3>
         </div>
         <div className="border-l border-border pl-6 sm:pl-8">
           <p className="text-sm italic text-cream/65">“{appeal.objection}”</p>

@@ -1,8 +1,8 @@
 import type { Appeal, CaseInput, Trial } from "./types";
 
 /**
- * Saved trials for sample-demo mode (no AI). A sample is matched by its exact
- * complaint text; anything else gets a templated trial.
+ * Saved trials. A sample is matched by its exact complaint text; anything else
+ * gets a templated trial.
  */
 type SavedCase = {
   input: CaseInput;
@@ -119,7 +119,7 @@ export const SAMPLE_CHIPS: SavedCase[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Templated trials for custom complaints in sample-demo mode          */
+/* Templated trials for custom complaints                             */
 /* ------------------------------------------------------------------ */
 
 function hash(s: string): number {
@@ -216,7 +216,7 @@ export function sampleTrialFor(input: CaseInput): Trial {
   };
 }
 /* ------------------------------------------------------------------ */
-/* Saved appeal (sample demo only)                                     */
+/* Appeals: one saved, the rest templated                             */
 /* ------------------------------------------------------------------ */
 
 const normalize = (s: string) => s.trim().replace(/\s+/g, " ");
@@ -236,4 +236,59 @@ export function savedAppealFor(input: CaseInput, objection: string): Appeal | nu
   const preset = presetObjectionFor(input);
   if (!preset || normalize(objection) !== normalize(preset)) return null;
   return FEATURED_SAMPLE.savedAppeal!.appeal;
+}
+
+const REACTIONS = [
+  "The court has read your objection. The court has read it again. The court is now rubbing its temples.",
+  "Ah. New information. The court loves new information almost as much as it hates surprises.",
+  "The court notes the objection, and also notes that you waited until after the verdict to mention it.",
+  "The bailiff gasped. The court did not gasp, but the court understands why the bailiff did.",
+];
+
+/** A templated ruling on any objection, taken on faith and deterministic per text. */
+export function templatedAppeal(trial: Trial, objection: string): Appeal {
+  const seed = hash(objection + trial.caseTitle);
+  const reaction = pick(REACTIONS, seed);
+  let ruling = pick(["UPHELD", "MODIFIED", "OVERTURNED"] as const, seed, 2);
+  if (ruling === "OVERTURNED" && trial.verdict === "EVERYONE IS RIDICULOUS") ruling = "MODIFIED";
+
+  if (ruling === "UPHELD") {
+    return {
+      kind: "appeal",
+      reaction,
+      ruling,
+      verdict: trial.verdict,
+      judgeReasoning:
+        "Taking the objection on faith, the court finds it changes the vibe but not the facts. The original ruling stands, slightly more tired.",
+      sentence: trial.sentence,
+      closingLine: "Objection noted. Objection ignored. Court is adjourned.",
+    };
+  }
+  if (ruling === "MODIFIED") {
+    return {
+      kind: "appeal",
+      reaction,
+      ruling,
+      verdict: trial.verdict,
+      judgeReasoning:
+        "The new context shifts some of the blame. Not all of it. The court is adjusting the sentence, not its opinion of anyone.",
+      sentence: "Sentence reduced to one (1) sincere apology, delivered without the word “but.”",
+      closingLine: "Justice has been recalibrated. Slightly.",
+    };
+  }
+  return {
+    kind: "appeal",
+    reaction,
+    ruling,
+    verdict: "EVERYONE IS RIDICULOUS",
+    judgeReasoning:
+      "On reflection, and on your word alone, the blame was never as tidy as the complaint suggested. Nobody leaves this courtroom clean.",
+    sentence: "Both parties must say “we’re both a bit much” out loud, at the same time, with eye contact.",
+    closingLine: "Verdict overturned. Dignity not restored.",
+  };
+}
+
+/** The saved appeal for its exact preset objection, otherwise a templated ruling. */
+export function appealFor(input: CaseInput, trial: Trial, objection: string): Appeal {
+  return savedAppealFor(input, objection) ?? templatedAppeal(trial, objection);
 }

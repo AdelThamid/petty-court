@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { ArrowRight, Loader2, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SAMPLE_CHIPS } from "@/lib/samples";
-import { LIMITS, type CaseInput, type CourtFailure } from "@/lib/types";
+import { LIMITS, type CaseInput } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const fieldClass =
@@ -29,22 +29,13 @@ export function CaseForm({
   value,
   onChange,
   onSubmit,
-  onRetry,
   pending,
-  error,
-  outOfScope,
-  aiAvailable,
   focusOnMount = false,
 }: {
   value: CaseInput;
   onChange: (v: CaseInput) => void;
   onSubmit: () => void;
-  onRetry: () => void;
   pending: boolean;
-  error: CourtFailure | null;
-  outOfScope: string | null;
-  /** null while checking. */
-  aiAvailable: boolean | null;
   /** Focus the complaint field when the form appears (e.g. after "Try another case"). */
   focusOnMount?: boolean;
 }) {
@@ -183,39 +174,9 @@ export function CaseForm({
               />
             </div>
 
-            {outOfScope && (
-              <div role="alert" className="rounded-md border border-gold/40 bg-gold/5 px-4 py-3">
-                <p className="label-proc text-gold">Case dismissed — outside this court’s jurisdiction</p>
-                <p className="mt-2 text-sm leading-relaxed text-cream/90">{outOfScope}</p>
-              </div>
-            )}
-
-            {error && (
-              <div
-                role="alert"
-                className="flex flex-col gap-3 rounded-md border border-destructive/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <p className="flex items-start gap-2 text-sm text-destructive">
-                  <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-                  {error.message}
-                </p>
-                {error.retryable && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onRetry}
-                    disabled={pending}
-                    className="h-9 shrink-0 gap-2 border-destructive/50 bg-transparent px-3 text-cream hover:bg-destructive/10 dark:bg-transparent"
-                  >
-                    <RotateCcw className="size-3.5" aria-hidden /> Retry
-                  </Button>
-                )}
-              </div>
-            )}
-
             <Button
               type="submit"
-              disabled={pending || aiAvailable === null}
+              disabled={pending}
               className="h-12 w-full gap-2 bg-burgundy text-base font-semibold text-cream hover:bg-burgundy-hover"
             >
               {pending ? (
@@ -230,30 +191,9 @@ export function CaseForm({
                 </>
               )}
             </Button>
-            <CourtStatus aiAvailable={aiAvailable} />
           </div>
         </div>
       </form>
     </div>
-  );
-}
-
-function CourtStatus({ aiAvailable }: { aiAvailable: boolean | null }) {
-  if (aiAvailable === null) {
-    return <p className="text-center text-xs text-muted-foreground">Checking whether the court is in session…</p>;
-  }
-  if (aiAvailable) {
-    return (
-      <p className="flex items-center justify-center gap-2 text-xs text-cream/70">
-        <Sparkles className="size-3.5 text-gold" aria-hidden /> Live AI court in session
-      </p>
-    );
-  }
-  return (
-    <p className="rounded-md border border-border px-4 py-3 text-xs leading-relaxed text-cream/70">
-      <span className="label-proc mr-1 text-gold">Sample demo mode.</span> The live AI court isn’t
-      configured on this server, so filings get saved or templated sample results, clearly labelled
-      “Sample demo — saved results.”
-    </p>
   );
 }

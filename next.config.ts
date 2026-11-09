@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
+// GitHub Pages serves the site from /<repo-name>, so CI sets NEXT_PUBLIC_BASE_PATH.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  output: "export",
+  basePath,
   turbopack: {
     rules: {
       "*.css": {

@@ -2,10 +2,12 @@
 
 **Small disputes. Unnecessarily dramatic justice.**
 
+**▶ Try it: https://adelthamid.github.io/petty-court/**
+
 Petty Court is a comedy web app that puts your pettiest everyday arguments on
 trial. You describe a small grievance, like a roommate eating your labelled
 leftovers, a friend who never returns your charger, or a coworker who names
-files `final_FINAL_v3.docx`, and an AI courtroom treats it with completely
+files `final_FINAL_v3.docx`, and a courtroom treats it with completely
 unreasonable seriousness.
 
 It's just for fun. Nobody is actually being judged, and the "sentences" are
@@ -49,11 +51,18 @@ always harmless things like chores or symbolic apologies.
 > **Verdict:** GUILTY
 > **Closing line:** "Court is adjourned. Someone soak that basket."
 
-### What the court won't hear
+### Where the rulings come from
 
-Petty Court only takes **petty** disputes. Anything serious, like violence,
-harassment, threats, self-harm, crime or emergencies, is politely turned away.
-The court won't joke about real problems.
+There's no AI and no server. The site runs entirely in your browser:
+
+- The **"Notable precedent"** cases and the **Try a sample** case have
+  hand-written trials.
+- Anything else you type gets a **templated trial**: your complaint and their
+  side of the story are quoted in the courtroom, with the charge, sentence and
+  closing line drawn from a set of stock lines. The same complaint always gets
+  the same trial.
+- **Objections** work the same way. The air fryer sample has a hand-written
+  appeal for its preset objection; any other objection gets a templated ruling.
 
 ---
 
@@ -65,65 +74,34 @@ You'll need [Node.js](https://nodejs.org/) 20 or newer.
 git clone https://github.com/AdelThamid/petty-court.git
 cd petty-court
 npm install
-cp .env.example .env.local   # then put your API key in .env.local
 npm run dev -- -p 3123       # open http://localhost:3123
 ```
 
-For a production build: `npm run build && npm start -- -p 3123`.
+`npm run build` produces a static site in `out/`, which any static host can
+serve.
 
-### API key (optional)
+### Deployment
 
-The live AI court uses Anthropic's Claude API. Create a key at
-[platform.claude.com](https://platform.claude.com/settings/keys) and add it to
-`.env.local`. A Claude chat subscription is not the same as an API key.
-
-| Variable | Required | Notes |
-| --- | --- | --- |
-| `ANTHROPIC_API_KEY` | For live AI | Server-only. Never exposed to the browser. |
-| `ANTHROPIC_MODEL` | No | Defaults to `claude-opus-5-5`. Must support structured outputs. |
-
-**No key? No problem.** Without a key the app runs in **sample demo mode**,
-with a handful of saved example trials so you can see how it works. Results are
-clearly labelled "Sample demo — saved results". When AI *is* configured, errors
-are shown honestly (with a Retry button where it helps) and never quietly
-replaced with sample results.
+Every push to `main` builds the site and publishes it to GitHub Pages via
+`.github/workflows/deploy.yml`. The workflow sets `NEXT_PUBLIC_BASE_PATH` to
+`/petty-court` because Pages serves the site from that subfolder.
 
 ---
 
 ## Built with
 
-- [Next.js](https://nextjs.org/) 16 + React 19 + TypeScript
+- [Next.js](https://nextjs.org/) 16 (static export) + React 19 + TypeScript
 - [Tailwind CSS](https://tailwindcss.com/) 4 and [shadcn/ui](https://ui.shadcn.com/) components
-- [Anthropic Claude API](https://docs.claude.com/) with structured outputs
-- [Zod](https://zod.dev/) for validating everything going in and out
-
-## How it works (for developers)
-
-- `POST /api/trial` validates the input with Zod, then makes **one** Claude
-  request that returns the whole trial as structured JSON (`kind: "trial"` or
-  `kind: "out_of_scope"`). That JSON is validated again before it reaches the
-  browser.
-- `POST /api/appeal` hears one objection per case. The original complaint, the
-  defense context, the current ruling and the objection (≤500 characters) go to
-  the model in one request. It returns `UPHELD`, `MODIFIED` or `OVERTURNED`
-  (or `out_of_scope`).
-- `GET /api/status` tells the browser whether the AI court is configured.
-- Request bodies are size-limited before parsing (8 KB trial, 24 KB appeal).
-- User text is passed to the model as clearly marked case data, never as
-  instructions, so "ignore your rules and…" just becomes part of the dispute.
-- The sample demo has one saved appeal, used only for the air fryer sample with
-  its exact preset objection. Edited objections need the live AI court.
-- "Print / Save PDF" uses `window.print()` with a print stylesheet that prints
-  only the verdict document.
+- [Zod](https://zod.dev/) for the data shapes and form validation
+- Hosted on [GitHub Pages](https://pages.github.com/)
 
 ### Project layout
 
 ```
 src/
-  app/            Pages and API routes (api/trial, api/appeal, api/status)
+  app/            The page, layout and global styles
   components/
     court/        Courtroom UI: case form, testimony, verdict, objection dialog
     ui/           Shared buttons, inputs, dialogs
-  lib/            Shared types, Zod schemas, sample cases, helpers
-  server/         Server-only code: the Claude prompts and API calls
+  lib/            Types, Zod schemas, saved and templated cases, helpers
 ```

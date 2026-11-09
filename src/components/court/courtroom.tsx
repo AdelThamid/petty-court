@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { FastForward, Gavel, Scale, ScrollText, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { pickJudgment, type AppealRecord, type CaseInput, type CourtFailure, type CourtMode, type Trial } from "@/lib/types";
+import { pickJudgment, type AppealRecord, type CaseInput, type Trial } from "@/lib/types";
 import { AppealResult } from "./appeal-result";
 import { ObjectionDialog } from "./objection-dialog";
 import { VerdictActions } from "./verdict-actions";
@@ -25,30 +25,24 @@ export function Courtroom({
   caseNumber,
   input,
   trial,
-  mode,
   stage,
   onAdvance,
   onSkip,
   appeal,
   appealPending,
-  appealError,
   onAppeal,
-  aiAvailable,
   presetObjection,
   onReset,
 }: {
   caseNumber: string;
   input: CaseInput;
   trial: Trial;
-  mode: CourtMode;
   stage: Stage;
   onAdvance: () => void;
   onSkip: () => void;
   appeal: AppealRecord | null;
   appealPending: boolean;
-  appealError: CourtFailure | null;
   onAppeal: (text: string) => Promise<boolean>;
-  aiAvailable: boolean;
   presetObjection: string | null;
   onReset: () => void;
 }) {
@@ -87,15 +81,6 @@ export function Courtroom({
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="label-proc tabular-nums text-gold">Case {caseNumber}</span>
           <span className="label-proc text-muted-foreground">Court is in session</span>
-          {mode === "sample" ? (
-            <span className="label-proc rounded-sm border border-gold/40 px-2 py-0.5 text-gold">
-              Sample demo — saved results
-            </span>
-          ) : (
-            <span className="label-proc rounded-sm border border-cream/25 px-2 py-0.5 text-cream/80">
-              Live AI ruling
-            </span>
-          )}
         </div>
         <h1
           ref={titleRef}
@@ -176,11 +161,6 @@ export function Courtroom({
           {appeal && <AppealResult ref={appealRef} original={pickJudgment(trial)} appeal={appeal} />}
 
           <div className="flex flex-col gap-6">
-            {mode === "sample" && (
-              <p className="no-print label-proc mx-auto w-full max-w-3xl text-center text-gold">
-                Sample demo — saved results
-              </p>
-            )}
             {/* Always the latest judgment: this is what gets copied and printed. */}
             <div className="reveal print-area" key={appeal ? "appealed" : "original"}>
               <VerdictDocument
@@ -201,12 +181,9 @@ export function Courtroom({
           </div>
 
           <ObjectionDialog
-            caseMode={mode}
-            aiAvailable={aiAvailable}
             presetObjection={presetObjection}
             used={Boolean(appeal)}
             pending={appealPending}
-            error={appealError}
             onSubmit={onAppeal}
           />
         </>

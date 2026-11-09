@@ -10,7 +10,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Petty Court — Small disputes. Unnecessarily dramatic justice.",
   description:
-    "An absurdly serious AI courtroom for extremely unserious everyday arguments.",
+    "An absurdly serious courtroom for extremely unserious everyday arguments.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
